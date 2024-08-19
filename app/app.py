@@ -59,7 +59,6 @@ def order():
             order[cocktail_name] = quantity
     print(request.form.items())
 
-    # Отправляем заказ в Telegram
     send_to_telegram(order)
     return f'Ваш заказ отправлен на бар!'
 
