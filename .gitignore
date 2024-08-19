@@ -1,0 +1,16 @@
+*.py[cod]
+*.pyc
+
+bin/
+bin/*
+
+share/
+share/*
+
+local/
+local/*
+
+include/
+include/*
+
+venv/
