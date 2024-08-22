@@ -1,7 +1,10 @@
 from flask import render_template, url_for
 from .models import get_cocktails
 
-def index_view():
+def main_view():
+    return render_template('mainmodule/main.html')
+
+def drinks_view():
     cocktails = get_cocktails()
     return render_template('mainmodule/index.html', cocktails=cocktails)
 

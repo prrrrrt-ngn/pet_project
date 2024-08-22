@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, g
 from .models import get_db_connection
-from .views import index_view, order_view, not_found_view
+from .views import drinks_view, order_view, not_found_view, main_view
 from app.services.telegram_service import send_to_telegram
 
 main_module = Blueprint('mainmodule', __name__, template_folder='../templates')
@@ -20,8 +20,12 @@ def disconn(responce):
 
 
 @main_module.route('/', methods=["GET"])
-def index():
-    return index_view()
+def main():
+    return main_view()
+
+@main_module.route('/drinks', methods=["GET"])
+def drinks():
+    return drinks_view()
 
 
 @main_module.route('/order', methods=["POST"])
@@ -38,4 +42,4 @@ def order():
 
 @main_module.errorhandler(404)
 def NotPage(error):
-    return f'sasas'
+    return not_found_view()
