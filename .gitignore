@@ -14,3 +14,7 @@ include/
 include/*
 
 venv/
+
+.env
+
+__pycache__
