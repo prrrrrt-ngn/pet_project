@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, g
 from .models import get_db_connection
-from .views import drinks_view, order_view, not_found_view, main_view
+from .views import drinks_view, food_view, order_view, not_found_view, main_view
 from app.services.telegram_service import send_to_telegram
 
 main_module = Blueprint('mainmodule', __name__, template_folder='../templates')
@@ -26,6 +26,10 @@ def main():
 @main_module.route('/drinks', methods=["GET"])
 def drinks():
     return drinks_view()
+
+@main_module.route('/food', methods=["GET"])
+def food():
+    return food_view()
 
 
 @main_module.route('/order', methods=["POST"])

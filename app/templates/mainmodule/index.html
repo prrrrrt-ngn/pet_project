@@ -18,19 +18,22 @@
         <form action="/order" method="post">
             <h2>Меню</h2>
             <ul>
-                {% for cocktail, details in cocktails.items() %}
+                {% for product in products %}
                 <li class="menu-item">
                     <div class="item-info">
-                        <h3>{{ cocktail }}</h3>
+                        <h3>
+                            {{ product.name }}
+                            {{ product.price +  '₽'}}
+                        </h3>
                         <p>
-                            {% for ingredient in details.ingredients %}
-                                {{ingredient}}
+                            {% for ingredient in product.ingredients %}
+                                {{ingredient + ','}}
                             {% endfor %}
                         </p>
                     </div>
-                    <button class="add-button" type="button" onclick="changeQuantity('item{{ details.id }}', -1)">-</button>
-                    <input class ="count-item" type="text" id="item{{ details.id }}" name="{{ cocktail }}" value="0" min="0">
-                    <button class="add-button" type="button" onclick="changeQuantity('item{{ details.id }}', 1)">+</button>
+                    <button class="add-button" type="button" onclick="changeQuantity('item{{ product.id }}', -1)">-</button>
+                    <input class ="count-item" type="text" id="item{{ product.id }}" name="{{ product.name }}" value="0" min="0">
+                    <button class="add-button" type="button" onclick="changeQuantity('item{{ product.id }}', 1)">+</button>
                 </li>
                 {% endfor %}
             </ul>
