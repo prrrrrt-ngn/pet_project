@@ -1,17 +1,15 @@
-from flask import render_template, url_for
-from .models import get_cocktails, get_food
+from flask import render_template
+from .models import get_products, get_food, get_categories
+
 
 def main_view():
     return render_template('mainmodule/main.html')
 
-def drinks_view():
-    cocktails_dict = get_cocktails()
-    cocktails = list(cocktails_dict.values())
-    return render_template('mainmodule/index.html', products=cocktails)
-
-def food_view():
-    food = get_food()
-    return render_template('mainmodule/index.html', products=food)
+def products_view(category_id):
+    categories = get_categories()
+    products_dict = get_products(category_id)
+    products = list(products_dict.values())
+    return render_template('mainmodule/index.html', products=products, categories=categories)
 
 def order_view():
     return f'Ваш заказ отправлен на бар!'

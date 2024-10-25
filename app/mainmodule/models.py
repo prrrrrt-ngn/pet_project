@@ -2,7 +2,6 @@ from flask import g
 import psycopg2
 from config import Config
 
-
 def get_db_connection():
     if 'connection' not in g:
         try:
@@ -17,14 +16,30 @@ def get_db_connection():
     return g.connection
 
 
-def get_cocktails():
+def get_categories():
     g.cursor.execute(
-        "SELECT cocktails.cocktail_id, cocktails.name, ingredients.name, cocktails.price "
-        "FROM recipes "
-        "JOIN cocktails ON recipes.cocktail_id = cocktails.cocktail_id "
-        "JOIN ingredients ON recipes.ingredient_id = ingredients.ingredient_id"
+        "SELECT * "
+        "FROM categories" 
     )
     rows = g.cursor.fetchall()
+    categories = []
+    for category_id, category_name, subcategory in rows:
+        categories.append({'id': category_id, 'name': category_name, 'subcategory': subcategory})
+    return (categories)
+
+def get_products(category_id):
+    g.cursor.execute(
+        """
+        SELECT products.product_id, products.name, ingredients.name, products.price
+        FROM products 
+        LEFT JOIN recipes ON products.product_id = recipes.product_id 
+        LEFT JOIN ingredients ON recipes.ingredient_id = ingredients.ingredient_id 
+        WHERE products.category = %s
+        """,
+        (category_id,)
+    )
+    rows = g.cursor.fetchall()
+    print(rows)
     cocktails = {}
     for cocktail_id, cocktail_name, ingredient_name, price in rows:
         if cocktail_id not in cocktails:

@@ -1,49 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Бар Онлайн Заказ</title>
-    <link type="text/css" href="{{ url_for('static', filename='css/styles.css')}}", rel="stylesheet" >
+    <link type="text/css" href="{{ url_for('static', filename='css/styles.css')}}" rel="stylesheet">
     <script src="{{ url_for('static', filename='js/scripts.js')}}"></script>
 </head>
 <body>
-    <header>
-        <h1>Дом печати</h1>
-        <p>Сделайте заказ онлайн!</p>
+    <header class="header">
+        <span class="open-btn" onclick="openNav()">&#9776; Меню</span>
+        <h1 class="bar-title">Дом печати</h1>
     </header>
+
+    <div class="sidebar" id="sidebar">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeNav()">&times;</a>
+        {% for category in categories %}
+            {% if category.subcategory == None %}
+            <a href="{{url_for('mainmodule.products', category_id=category.id)}}">
+                {{ category.name }}
+            </a>
+            {% endif %}
+        {% endfor %}
+    </div>
 
     <main>
         <section class="menu">
-        <form action="/order" method="post">
-            <h2>Меню</h2>
-            <ul>
-                {% for product in products %}
-                <li class="menu-item">
-                    <div class="item-info">
-                        <h3>
-                            {{ product.name }}
-                            {{ product.price +  '₽'}}
-                        </h3>
-                        <p>
-                            {% for ingredient in product.ingredients %}
-                                {{ingredient + ','}}
-                            {% endfor %}
-                        </p>
-                    </div>
-                    <button class="add-button" type="button" onclick="changeQuantity('item{{ product.id }}', -1)">-</button>
-                    <input class ="count-item" type="text" id="item{{ product.id }}" name="{{ product.name }}" value="0" min="0">
-                    <button class="add-button" type="button" onclick="changeQuantity('item{{ product.id }}', 1)">+</button>
-                </li>
-                {% endfor %}
-            </ul>
-            <button class="order-button" type="submit">Оформить заказ</button>
-        </form>
+            <form action="/order" method="post">
+                <ul>
+                    {% for product in products %}
+                        <li class="menu-item">
+                            <div class="item-info">
+                                <h3>{{ product.name }} - {{ product.price }} ₽</h3>
+                                <p>
+                                    {% for ingredient in product.ingredients %}
+                                        {% if ingredient != None %}
+                                            {% if loop.first %}
+                                                {{ ingredient.capitalize() }},
+                                            {% elif loop.last %}
+                                                {{ ingredient.lower() }}
+                                            {% else %}
+                                                {{ ingredient.lower() }},
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </p>
+                            </div>
+                            <div class="quantity-controls">
+                                <button class="add-button" type="button" onclick="changeQuantity('item{{ product.id }}', -1)">-</button>
+                                <input class="count-item" type="text" id="item{{ product.id }}" name="{{ product.name }}" value="0" min="0">
+                                <button class="add-button" type="button" onclick="changeQuantity('item{{ product.id }}', 1)">+</button>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <button class="order-button" type="submit">Оформить заказ</button>
+            </form>
         </section>
     </main>
 
     <footer>
         <p>Свяжитесь с нами: +7 123 456 7890</p>
     </footer>
+
+    <script>
+        function openNav() {
+            document.getElementById("sidebar").style.width = "250px";
+        }
+
+        function closeNav() {
+            document.getElementById("sidebar").style.width = "0";
+        }
+
+        function changeQuantity(itemId, change) {
+            const item = document.getElementById(itemId);
+            let quantity = parseInt(item.value);
+            if (!isNaN(quantity) && quantity + change >= 0) {
+                item.value = quantity + change;
+            }
+        }
+    </script>
 </body>
 </html>

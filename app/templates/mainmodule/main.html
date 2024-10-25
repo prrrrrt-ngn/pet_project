@@ -8,14 +8,14 @@
 </head>
 <body>
     <div class="menu-container">
-        <a href="{{ url_for('mainmodule.drinks')}}" class="menu-section-link">
+        <a href="{{ url_for('mainmodule.products', category_id=1)}}" class="menu-section-link">
             <div class="menu-section drinks">
                 <div class="overlay">
                     <h1>Напитки</h1>
                 </div>
             </div>
         </a>
-        <a href="{{ url_for('mainmodule.food')}}" class="menu-section-link">
+        <a href="{{ url_for('mainmodule.products', category_id=7)}}" class="menu-section-link">
             <div class="menu-section kitchen">
                 <div class="overlay">
                     <h1>Кухня</h1>
