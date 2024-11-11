@@ -29,29 +29,29 @@
             <form action="/order" method="post">
                 <ul>
                     {% for product in products %}
-                        <li class="menu-item">
-                            <div class="item-info">
-                                <h3>{{ product.name }} - {{ product.price }} ₽</h3>
-                                <p>
-                                    {% for ingredient in product.ingredients %}
-                                        {% if ingredient != None %}
-                                            {% if loop.first %}
-                                                {{ ingredient.capitalize() }},
-                                            {% elif loop.last %}
-                                                {{ ingredient.lower() }}
-                                            {% else %}
-                                                {{ ingredient.lower() }},
+                            <li class="menu-item">
+                                <div class="item-info">
+                                    <h3>{{ product.name }} - {{ product.price }} ₽</h3>
+                                    <p>
+                                        {% for ingredient in product.ingredients %}
+                                            {% if ingredient != None %}
+                                                {% if loop.first %}
+                                                    {{ ingredient.capitalize() }},
+                                                {% elif loop.last %}
+                                                    {{ ingredient.lower() }}
+                                                {% else %}
+                                                    {{ ingredient.lower() }},
+                                                {% endif %}
                                             {% endif %}
-                                        {% endif %}
-                                    {% endfor %}
-                                </p>
-                            </div>
-                            <div class="quantity-controls">
-                                <button class="add-button" type="button" onclick="changeQuantity('item{{ product.id }}', -1)">-</button>
-                                <input class="count-item" type="text" id="item{{ product.id }}" name="{{ product.name }}" value="0" min="0">
-                                <button class="add-button" type="button" onclick="changeQuantity('item{{ product.id }}', 1)">+</button>
-                            </div>
-                        </li>
+                                        {% endfor %}
+                                    </p>
+                                </div>
+                                <div class="quantity-controls">
+                                    <button class="add-button" type="button" onclick="changeQuantity('item{{ product.id }}', -1)">-</button>
+                                    <input class="count-item" type="text" id="item{{ product.id }}" name="{{ product.name }}" value="0" min="0">
+                                    <button class="add-button" type="button" onclick="changeQuantity('item{{ product.id }}', 1)">+</button>
+                                </div>
+                            </li>
                     {% endfor %}
                 </ul>
                 <button class="order-button" type="submit">Оформить заказ</button>

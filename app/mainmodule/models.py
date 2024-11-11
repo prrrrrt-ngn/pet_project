@@ -30,22 +30,34 @@ def get_categories():
 def get_products(category_id):
     g.cursor.execute(
         """
-        SELECT products.product_id, products.name, ingredients.name, products.price
-        FROM products 
-        LEFT JOIN recipes ON products.product_id = recipes.product_id 
-        LEFT JOIN ingredients ON recipes.ingredient_id = ingredients.ingredient_id 
-        WHERE products.category = %s
+        SELECT products.product_id, products.name, ingredients.name, products.price, categories.name
+        FROM products
+        LEFT JOIN recipes ON products.product_id = recipes.product_id
+        LEFT JOIN ingredients ON recipes.ingredient_id = ingredients.ingredient_id
+        JOIN categories ON products.category = categories.category_id
+        LEFT JOIN categories AS parent_categories ON categories.subcategory = parent_categories.subcategory
+        WHERE (categories.category_id = %s OR categories.subcategory = %s);
+
         """,
-        (category_id,)
+        (category_id, category_id)
     )
     rows = g.cursor.fetchall()
     print(rows)
-    cocktails = {}
-    for cocktail_id, cocktail_name, ingredient_name, price in rows:
-        if cocktail_id not in cocktails:
-            cocktails[cocktail_id] = ({'id': cocktail_id, 'name': cocktail_name, 'ingredients': [], 'price': str(price)})
-        cocktails[cocktail_id]['ingredients'].append(ingredient_name)
-    return (cocktails)
+    cocktails_per_subcategory = {}
+    for cocktail_id, cocktail_name, ingredient_name, price, subcategory in rows:
+        if subcategory not in cocktails_per_subcategory:
+                cocktails_per_subcategory[subcategory] = [{'id': cocktail_id, 'name': cocktail_name, 'ingredients': [], 'price': str(price)}]
+        else:
+            if not any(cocktail['id'] == cocktail_id for cocktail in cocktails_per_subcategory[subcategory]):
+                cocktails_per_subcategory[subcategory].append({'id': cocktail_id, 'name': cocktail_name, 'ingredients': [], 'price': str(price)})
+    print('-------------------------')
+    print(cocktails_per_subcategory)
+    return (cocktails_per_subcategory)
+
+    #     if cocktail_id not in cocktails:
+    #         cocktails[cocktail_id] = ({'id': cocktail_id, 'name': cocktail_name, 'ingredients': [], 'price': str(price)})
+    #     cocktails[cocktail_id]['ingredients'].append(ingredient_name)
+    # return (cocktails)
 
 
 def get_food():

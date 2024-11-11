@@ -23,7 +23,7 @@ def disconn(responce):
 def main():
     return main_view()
 
-@main_module.route('/drinks/category/<string:category_id>', methods=["GET"])
+@main_module.route('/products/category/<string:category_id>', methods=["GET"])
 def products(category_id):
     return products_view(category_id)
 
