@@ -8,8 +8,7 @@ def main_view():
 def products_view(category_id):
     categories = get_categories()
     products_dict = get_products(category_id)
-    products = list(products_dict.values())
-    return render_template('mainmodule/index.html', products=products, categories=categories)
+    return render_template('mainmodule/index.html', products_by_subcategories=products_dict, categories=categories)
 
 def order_view():
     return f'Ваш заказ отправлен на бар!'

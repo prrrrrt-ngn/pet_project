@@ -36,7 +36,8 @@ def get_products(category_id):
         LEFT JOIN ingredients ON recipes.ingredient_id = ingredients.ingredient_id
         JOIN categories ON products.category = categories.category_id
         LEFT JOIN categories AS parent_categories ON categories.subcategory = parent_categories.subcategory
-        WHERE (categories.category_id = %s OR categories.subcategory = %s);
+        WHERE (categories.category_id = %s OR categories.subcategory = %s)
+        ORDER BY products.name;
 
         """,
         (category_id, category_id)
@@ -47,17 +48,16 @@ def get_products(category_id):
     for cocktail_id, cocktail_name, ingredient_name, price, subcategory in rows:
         if subcategory not in cocktails_per_subcategory:
                 cocktails_per_subcategory[subcategory] = [{'id': cocktail_id, 'name': cocktail_name, 'ingredients': [], 'price': str(price)}]
+                cocktails_per_subcategory[subcategory][-1]['ingredients'].append(ingredient_name)
         else:
             if not any(cocktail['id'] == cocktail_id for cocktail in cocktails_per_subcategory[subcategory]):
                 cocktails_per_subcategory[subcategory].append({'id': cocktail_id, 'name': cocktail_name, 'ingredients': [], 'price': str(price)})
+                cocktails_per_subcategory[subcategory][-1]['ingredients'].append(ingredient_name)
+            else:
+                cocktails_per_subcategory[subcategory][-1]['ingredients'].append(ingredient_name)
     print('-------------------------')
     print(cocktails_per_subcategory)
     return (cocktails_per_subcategory)
-
-    #     if cocktail_id not in cocktails:
-    #         cocktails[cocktail_id] = ({'id': cocktail_id, 'name': cocktail_name, 'ingredients': [], 'price': str(price)})
-    #     cocktails[cocktail_id]['ingredients'].append(ingredient_name)
-    # return (cocktails)
 
 
 def get_food():
