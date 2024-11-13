@@ -47,14 +47,19 @@ def get_products(category_id):
     cocktails_per_subcategory = {}
     for cocktail_id, cocktail_name, ingredient_name, price, subcategory in rows:
         if subcategory not in cocktails_per_subcategory:
-                cocktails_per_subcategory[subcategory] = [{'id': cocktail_id, 'name': cocktail_name, 'ingredients': [], 'price': str(price)}]
-                cocktails_per_subcategory[subcategory][-1]['ingredients'].append(ingredient_name)
-        else:
-            if not any(cocktail['id'] == cocktail_id for cocktail in cocktails_per_subcategory[subcategory]):
-                cocktails_per_subcategory[subcategory].append({'id': cocktail_id, 'name': cocktail_name, 'ingredients': [], 'price': str(price)})
-                cocktails_per_subcategory[subcategory][-1]['ingredients'].append(ingredient_name)
-            else:
-                cocktails_per_subcategory[subcategory][-1]['ingredients'].append(ingredient_name)
+                cocktails_per_subcategory[subcategory] = []
+
+        # Проверяем генераторным выражением, проходящему по всем продуктам в подкатегории, добавлен он уже или нет
+        product = next((c for c in cocktails_per_subcategory[subcategory] if c['id'] == cocktail_id), None)
+
+        # Если продукта нет, то добавляем
+        if not product:
+            product = {'id': cocktail_id, 'name': cocktail_name, 'ingredients': [], 'price': str(price)}
+            cocktails_per_subcategory[subcategory].append(product)
+
+        # В любом случае через ссылку, указывающую на нужный продукт добавляем новый ингредиент
+        product['ingredients'].append(ingredient_name)
+        
     print('-------------------------')
     print(cocktails_per_subcategory)
     return (cocktails_per_subcategory)
