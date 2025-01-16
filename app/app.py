@@ -1,23 +1,9 @@
-from flask import Flask, render_template, g
-from mainmodule.models import get_db_connection
+from flask import Flask
+from app import create_app
+
 app = Flask(__name__)
 
-@app.before_request
-def conn():
-    g.connection = get_db_connection()
-    g.cursor = g.connection.cursor()
-
-@app.after_request
-def disconn(responce):
-    if hasattr(g, 'connection'):
-        g.connection.close()
-    if hasattr(g, 'cursor'):
-        g.cursor.close()
-    return responce
-
-@app.errorhandler(404)
-def NotPage(error):
-    return (render_template('404.html'), 404)
+app = create_app()
 
 if __name__ == "__main__":
     app.run(host = '0.0.0.0', port=5000)

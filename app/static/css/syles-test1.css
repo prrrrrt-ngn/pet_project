@@ -1,19 +1,8 @@
-/* Общие стили */
-body, html {
+body {
     font-family: "Arial", sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
-    height: 100%;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* Основная обертка для flexbox */
-#main-wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
 }
 
 /* Заголовок */
@@ -76,8 +65,7 @@ body, html {
 }
 
 /* Основное содержимое */
-main {
-    flex: 1; /* Основное содержимое занимает оставшуюся высоту */
+.main-content {
     padding: 20px;
 }
 
@@ -175,64 +163,14 @@ main {
     background-color: #ff6347;
 }
 
-/* Футер */
+/* Подвал */
 footer {
     background-color: #333;
     color: white;
     text-align: center;
     padding: 10px;
-    position: relative;
+    position: static;
     bottom: 0;
     width: 100%;
 }
 
-/* Адаптивные стили */
-@media (max-width: 768px) {
-    .header {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .menu {
-        padding: 10px;
-        margin: 10px;
-    }
-
-    .menu-item {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .item-info {
-        margin-bottom: 10px;
-    }
-
-    .quantity-controls {
-        justify-content: space-between;
-        width: 100%;
-    }
-
-    .add-button, .count-item {
-        flex: 1;
-        margin: 5px;
-    }
-
-    .order-button {
-        font-size: 1rem;
-        padding: 0.8rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .header .bar-title {
-        font-size: 1.5rem;
-    }
-
-    .menu h2 {
-        font-size: 1.2rem;
-    }
-
-    .order-button {
-        padding: 0.5rem;
-    }
-}

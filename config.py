@@ -9,11 +9,6 @@ class Config:
     password = os.getenv('DB_PASSWORD')
     db_name = os.getenv('DB_NAME')
 
+    SECRET_KEY = os.getenv('SECRET_KEY')
     bot_token = os.getenv('TELEGRAM_BOT_TOKEN')
     chat_id = os.getenv('TELEGRAM_CHAT_ID')
-
-class DevelopmentConfig(Config):
-    FLASK_DEBUG = 1
-
-class ProductionConfig(Config):
-    FLASK_DEBUG = 0

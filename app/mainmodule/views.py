@@ -1,9 +1,5 @@
-from flask import render_template
-from .models import get_products, get_food, get_categories
-
-
-def main_view():
-    return render_template('mainmodule/main.html')
+from flask import render_template, session
+from .models import get_products, get_categories
 
 def products_view(category_id):
     categories = get_categories()
@@ -12,6 +8,9 @@ def products_view(category_id):
 
 def order_view():
     return f'Ваш заказ отправлен на бар!'
+
+def carts_view():
+    return f'{session.get['cart']}'
 
 def not_found_view():
     return render_template('404.html'), 404
