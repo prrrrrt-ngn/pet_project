@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказ</title>
+</head>
+<body>
+    <h1>Ваш заказ</h1>
+    <ul>
+        {% for item in cart %}
+            {% for product, quantity in item.items() %}
+                <li>{{product}} : {{item[product]}}
+                    <form action="{{ url_for('mainmodule.cart') }}" method="post" style="display:inline;">
+                        <input type="hidden" name="product" value="{{ product }}">
+                        <button type="submit">Удалить</button>
+                    </form>
+                </li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+</body>
+</html>
