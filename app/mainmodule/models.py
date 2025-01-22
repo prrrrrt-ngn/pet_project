@@ -43,7 +43,6 @@ def get_products(category_id):
         (category_id, category_id)
     )
     rows = g.cursor.fetchall()
-    print(rows)
     cocktails_per_subcategory = {}
     for cocktail_id, cocktail_name, ingredient_name, price, subcategory in rows:
         if subcategory not in cocktails_per_subcategory:
@@ -59,9 +58,6 @@ def get_products(category_id):
 
         # В любом случае через ссылку, указывающую на нужный продукт добавляем новый ингредиент
         product['ingredients'].append(ingredient_name)
-        
-    print('-------------------------')
-    print(cocktails_per_subcategory)
     return (cocktails_per_subcategory)
 
 

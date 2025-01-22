@@ -1,5 +1,5 @@
-from flask import Blueprint, request, g, redirect, url_for, session
-from .models import get_db_connection
+from flask import Blueprint, request, g, redirect, url_for, session, jsonify
+from .models import get_db_connection, get_products
 from .views import products_view, not_found_view, cart_view
 from app.services.telegram_service import send_to_telegram
 
@@ -38,17 +38,45 @@ def products(category_id):
 @main_module.route('/order', methods=["POST"])
 def order():
     order = {}
+    category_id = request.form.get('category')
+    if not category_id:
+        return jsonify({"error": "Category ID is missing"}), 400
+
+    products_in_menu = get_products(category_id)
+    product_names_in_menu = set()
+
+    for subcategory, products in products_in_menu.items():
+        for product in products:
+            product_names_in_menu.add(product['name'])
+
     for cocktail_name, details in request.form.items():
+        if cocktail_name == 'category':
+            continue
         quantity = int(details)
         if quantity > 0:
-            order[cocktail_name] = quantity
-    if 'cart' not in session:
-        session['cart'] = []
-    
-    session['cart'].append(order)
-    session.modified = True
-    
-    return redirect(url_for('mainmodule.products', category_id=1))
+            if cocktail_name in product_names_in_menu:
+                if 'cart' not in session:
+                    session['cart'] = []
+
+                # Проверяем, существует ли продукт уже в корзине
+                product_exists = False
+                for item in session['cart']:
+                    if cocktail_name in item:
+                        item[cocktail_name] += quantity
+                        product_exists = True
+                        break
+
+                # Если продукт не существует в корзине, добавляем его
+                if not product_exists:
+                    session['cart'].append({cocktail_name: quantity})
+
+                session.modified = True
+            else:
+                return jsonify({"error": f"Product {cocktail_name} not found in menu"}), 400
+
+    return redirect(url_for('mainmodule.products', category_id=category_id))
+
+
 
 
 @main_module.route('/cart', methods=["GET", "POST"])
