@@ -12,7 +12,7 @@
         <header class="header">
             <span class="open-btn" onclick="openNav()">&#9776; Меню</span>
             <h1 class="bar-title">Дом печати</h1>
-            <a href="{{url_for('mainmodule.cart')}}" class="bar-title">Корзина</a>
+            <a href="{{url_for('mainmodule.order')}}" class="bar-title">Корзина</a>
         </header>
 
         <div class="sidebar" id="sidebar">
@@ -28,7 +28,7 @@
 
         <main>
             <section class="menu">
-                <form action="/order" method="post">
+                <form action="{{ url_for('mainmodule.add_to_order') }}" method="POST" id="order-form">
                     <ul>
                         {% for subcategories, products in products_by_subcategories.items() %}
                             <h2>{{ subcategories }}</h2>
@@ -61,7 +61,7 @@
                             <br>
                         {% endfor %}
                     </ul>
-                    <input type="hidden" name="category" value="{{ this_category }}">
+                    <input type="hidden" name="category_id" value="{{ category_id }}">
                     <button class="order-button" type="submit">Добавить в заказ</button>
                 </form>
             </section>
@@ -73,6 +73,51 @@
     </div>
 
     <script>
+        document.getElementById('order-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const categoryId = formData.get('category_id');
+            const products = [];
+
+            // Перебираем все продукты и собираем их id и количество
+            formData.forEach((quantity, productName) => {
+                if (productName !== 'category_id' && quantity > 0) {
+                    products.push({
+                        id: productName, // Используем название как id (можно заменить на реальные ids)
+                        quantity: parseInt(quantity)
+                    });
+                }
+            });
+
+            // Создаём JSON объект
+            const data = {
+                category_id: categoryId,
+                products: products
+            };
+
+            // Отправляем данные на сервер через fetch
+            fetch('/add_to_order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    window.location.href = `/products/category/${categoryId}`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        //Меню навигации
         function openNav() {
             document.getElementById("sidebar").style.width = "250px";
         }
@@ -81,6 +126,7 @@
             document.getElementById("sidebar").style.width = "0";
         }
 
+        //Изменение кол-ва продуктов в поле 
         function changeQuantity(itemId, change) {
             const item = document.getElementById(itemId);
             let quantity = parseInt(item.value);

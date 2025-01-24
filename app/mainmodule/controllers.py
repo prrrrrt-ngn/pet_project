@@ -1,13 +1,12 @@
 from flask import Blueprint, request, g, redirect, url_for, session, jsonify
 from .models import get_db_connection, get_products
-from .views import products_view, not_found_view, cart_view
-from app.services.telegram_service import send_to_telegram
+from .views import products_view, not_found_view, order_view
 
 main_module = Blueprint('mainmodule', __name__, template_folder='../templates')
 
 
 @main_module.before_request
-def conn():
+def before_request():
     g.connection = get_db_connection()
     g.cursor = g.connection.cursor()
 #соединение с бд
@@ -35,63 +34,56 @@ def products(category_id):
 #контроллер отображения страницы меню (айди категории передается с url в функцию)
 
 
-@main_module.route('/order', methods=["POST"])
-def order():
-    order = {}
-    category_id = request.form.get('category')
-    if not category_id:
-        return jsonify({"error": "Category ID is missing"}), 400
+@main_module.route('/add_to_order', methods=["POST"])
+def add_to_order():
+    try:
+        data = request.get_json()
+        print(f"Received data: {data}")
+        category_id = data.get("category_id")
+        products = data.get("products", [])
 
-    products_in_menu = get_products(category_id)
-    product_names_in_menu = set()
+        if not category_id or not products:
+            return jsonify({"error": "Category ID or products are missing"}), 400
+        
+        valid_products = {p['name'] for _, products in get_products(category_id).items() for p in products}
+    
+        if 'order' not in session:
+            session['order'] = []
 
-    for subcategory, products in products_in_menu.items():
         for product in products:
-            product_names_in_menu.add(product['name'])
+            product_name = product.get("id")
+            quantity = product.get("quantity")
 
-    for cocktail_name, details in request.form.items():
-        if cocktail_name == 'category':
-            continue
-        quantity = int(details)
-        if quantity > 0:
-            if cocktail_name in product_names_in_menu:
-                if 'cart' not in session:
-                    session['cart'] = []
+            if product_name not in valid_products or quantity <= 0:
+                continue
 
-                # Проверяем, существует ли продукт уже в корзине
-                product_exists = False
-                for item in session['cart']:
-                    if cocktail_name in item:
-                        item[cocktail_name] += quantity
-                        product_exists = True
-                        break
-
-                # Если продукт не существует в корзине, добавляем его
-                if not product_exists:
-                    session['cart'].append({cocktail_name: quantity})
-
-                session.modified = True
+            for item in session['order']:
+                if product_name in item:
+                    item[product_name] += quantity
+                    break
             else:
-                return jsonify({"error": f"Product {cocktail_name} not found in menu"}), 400
+                session['order'].append({product_name: quantity})
+        session.modified = True
 
-    return redirect(url_for('mainmodule.products', category_id=category_id))
+        return jsonify({"message": "Order successfully update"}), 200
+    
+    except Exception as e:
+        return jsonify({"error": f"An error occurres: {str(e)}"}), 500
 
 
-
-
-@main_module.route('/cart', methods=["GET", "POST"])
-def cart():
+@main_module.route('/order', methods=["GET", "POST"])
+def order():
     if request.method == "POST":
         product_to_remove = request.form.get('product')
-        if product_to_remove and 'cart' in session:
-            for item in session['cart']:
+        if product_to_remove and 'order' in session:
+            for item in session['order']:
                 if product_to_remove in item:
                     del item[product_to_remove]
                     session.modified = True
                     break
-        return redirect(url_for('mainmodule.cart'))
+        return redirect(url_for('mainmodule.order'))
     
-    return cart_view(session.get('cart', {}))
+    return order_view(session.get('order', {}))
 
 
 @main_module.errorhandler(404)

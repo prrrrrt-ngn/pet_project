@@ -5,12 +5,7 @@ from config import Config
 def get_db_connection():
     if 'connection' not in g:
         try:
-            g.connection = psycopg2.connect(
-                host=Config.host,
-                user=Config.user,
-                password=Config.password,
-                database=Config.db_name
-            )
+            g.connection = psycopg2.connect(**Config.DB_CONFIG)
         except Exception as _ex:
             print("[INFO], ошибка", _ex)
     return g.connection
