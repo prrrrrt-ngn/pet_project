@@ -1,6 +1,7 @@
 from flask import Blueprint, request, g, redirect, url_for, session, jsonify
 from .models import get_db_connection, get_products
 from .views import products_view, not_found_view, order_view
+from ..services.telegram_service import send_to_telegram
 
 main_module = Blueprint('mainmodule', __name__, template_folder='../templates')
 
@@ -38,7 +39,6 @@ def products(category_id):
 def add_to_order():
     try:
         data = request.get_json()
-        print(f"Received data: {data}")
         category_id = data.get("category_id")
         products = data.get("products", [])
 
@@ -74,17 +74,37 @@ def add_to_order():
 @main_module.route('/order', methods=["GET", "POST"])
 def order():
     if request.method == "POST":
-        product_to_remove = request.form.get('product')
-        if product_to_remove and 'order' in session:
-            for item in session['order']:
-                if product_to_remove in item:
-                    del item[product_to_remove]
-                    session.modified = True
-                    break
-        return redirect(url_for('mainmodule.order'))
-    
-    return order_view(session.get('order', {}))
+        try:
+            data = request.get_json()
+            product_to_remove = data.get('product')
 
+            if product_to_remove and 'order' in session:
+                for item in session['order']:
+                    if product_to_remove in item:
+                        del item[product_to_remove]
+                        session.modified = True
+                        break
+            return jsonify({"message": "Телочку на веранде оу ес"}), 200
+
+        except Exception as e:
+            return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+    if 'order' not in session:
+        session['order'] = []
+    return order_view(session['order'])
+
+
+@main_module.route('/confirm_order', methods=["POST"])
+def confirm_order():
+    try:
+        data = request.get_json()
+        if not data.get('order'):
+            return jsonify({"error": "Заказ пуст"}), 400
+        ready_order = data.get('order')
+        send_to_telegram(ready_order)
+        return jsonify({"message": "Заказ подтвержден!"}), 200
+    
+    except Exception as e:
+        return jsonify({"error": f"An error occurres: {str(e)}"}), 500
 
 @main_module.errorhandler(404)
 def NotPage(error):

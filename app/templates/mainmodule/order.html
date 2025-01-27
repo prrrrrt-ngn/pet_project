@@ -7,17 +7,72 @@
 </head>
 <body>
     <h1>Ваш заказ</h1>
-    <ul>
-        {% for item in order %}
-            {% for product, quantity in item.items() %}
-                <li>{{product}} : {{item[product]}}
-                    <form action="{{ url_for('mainmodule.order') }}" method="post" style="display:inline;">
-                        <input type="hidden" name="product" value="{{ product }}">
-                        <button type="submit">Удалить</button>
-                    </form>
-                </li>
+        <ul id="order-list">
+            {% for item in order %}
+                {% for product, quantity in item.items() %}
+                    <li data-product="{{ product }}">
+                        {{product}} : {{ quantity }}
+                        <button onclick="removeProduct('{{ product }}')">Удалить</button>
+                    </li>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </ul>
+        </ul>
+        <button onclick="confirmOrder()">Подтвердить заказ</button>
+
+
+        <script>
+            async function removeProduct(product) {
+                const response = await fetch('/order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ product }),
+                });
+    
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    console.error('Не удалось удалить позицию');
+                }
+            }
+    
+            async function confirmOrder() {
+            // Получаем все элементы корзины из DOM
+            const orderList = document.querySelectorAll('#order-list li');
+            const order = [];
+
+            orderList.forEach(item => {
+                const product = item.getAttribute('data-product');
+                const quantityText = item.textContent.split(':')[1]?.trim(); // Извлекаем количество
+                const quantity = parseInt(quantityText, 10);
+
+                if (product && quantity > 0) {
+                    order.push({ product, quantity });
+                }
+            });
+
+            // Отправляем запрос с корзиной на сервер
+            const response = await fetch('/confirm_order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ order }), // Передаем заказ в теле запроса
+            });
+
+            if (response.ok) {
+                alert('Телочку на веранде оу ес!');
+                window.location.href = '/products/category/1';
+            } 
+            else {
+                const errorData = await response.json();
+                if (errorData.error === 'Заказ пуст') {
+                    alert(errorData.error);
+                }
+                console.error('Failed to confirm order');
+            }
+            }
+        </script>
 </body>
 </html>
