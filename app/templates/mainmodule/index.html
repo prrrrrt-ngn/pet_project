@@ -1,77 +1,82 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Бар Онлайн Заказ</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link type="text/css" href="{{ url_for('static', filename='css/styles.css')}}" rel="stylesheet">
     <script src="{{ url_for('static', filename='js/scripts.js')}}"></script>
+    <title>Меню</title>
 </head>
 <body>
-    <div id="main-wrapper">
-        <header class="header">
-            <span class="open-btn" onclick="openNav()">&#9776; Меню</span>
-            <h1 class="bar-title">Дом печати</h1>
-            <a href="{{url_for('mainmodule.order')}}" class="bar-title">Корзина</a>
-        </header>
-
-        <div class="sidebar" id="sidebar">
-            <a href="javascript:void(0)" class="close-btn" onclick="closeNav()">&times;</a>
-            {% for category in categories %}
-                {% if category.subcategory == None %}
-                <a href="{{url_for('mainmodule.products', category_id=category.id)}}">
-                    {{ category.name }}
-                </a>
-                {% endif %}
-            {% endfor %}
+    <div class="denied">
+        <h1>Меню доступно только на мобильных устройствах</h1>
+    </div>
+    <div class="header">
+        <div class="menu">
+            <input type="checkbox" id="burger-checkbox" class="burger-checkbox">
+            <label for="burger-checkbox" class="burger"></label>
+            <ul class="menu-list">
+                {% for category in categories %}
+                    {% if category.subcategory == None %}
+                    <li><a href="{{url_for('mainmodule.products', category_id=category.id)}}">
+                        {{ category.name }}
+                    </a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
         </div>
-
-        <main>
-            <section class="menu">
-                <form action="{{ url_for('mainmodule.add_to_order') }}" method="POST" id="order-form">
-                    <ul>
-                        {% for subcategories, products in products_by_subcategories.items() %}
-                            <h2>{{ subcategories }}</h2>
-                            <br>
-                            {% for product in products %}
-                                <li class="menu-item">
-                                    <div class="item-info">
-                                        <h3>{{ product.name }} - {{ product.price }} ₽</h3>
-                                        <p>
-                                            {% for ingredient in product.ingredients %}
-                                                {% if ingredient != None %}
-                                                    {% if loop.first %}
-                                                        {{ ingredient.capitalize() }},
-                                                    {% elif loop.last %}
-                                                        {{ ingredient.lower() }}
-                                                    {% else %}
-                                                        {{ ingredient.lower() }},
-                                                    {% endif %}
-                                                {% endif %}
-                                            {% endfor %}
-                                        </p>
-                                    </div>
-                                    <div class="quantity-controls">
-                                        <button class="add-button" type="button" onclick="changeQuantity('item{{ product.id }}', -1)">-</button>
-                                        <input class="count-item" type="text" id="item{{ product.id }}" name="{{ product.name }}" value="0" min="0">
-                                        <button class="add-button" type="button" onclick="changeQuantity('item{{ product.id }}', 1)">+</button>
-                                    </div>
-                                </li>
-                            {% endfor %}
-                            <br>
-                        {% endfor %}
-                    </ul>
-                    <input type="hidden" name="category_id" value="{{ category_id }}">
-                    <button class="order-button" type="submit">Добавить в заказ</button>
-                </form>
-            </section>
-        </main>
-
-        <footer>
-            <p>Свяжитесь с нами: +7 123 456 7890</p>
-        </footer>
+        <div class="names">
+            <h2>Меню</h2>
+        </div>
+        <div class="names">
+            <a href="{{url_for('mainmodule.order')}}" class="bar-title">
+                <i class='bx bx-cart bx-md'></i>
+            </a>
+        </div>
     </div>
 
+    <form action="{{ url_for('mainmodule.add_to_order') }}" method="POST" id="order-form">
+        {% for subcategories, products in products_by_subcategories.items() %}
+                <div class="content">
+                    <div class="title">
+                        <h2>{{ subcategories }}</h2>
+                    </div>
+                    <div class="cards">
+                        {% for product in products %}
+                            <div class="card">
+                                <div class="first">
+                                    <img src="../../static/images/image.jpg">
+                                    <p>{{ product.name }}</p>
+                                    {% if product.volume != None %}
+                                        <p>{{ product.volume }}мл</p>
+                                    {% endif %}
+                                </div>
+                                <div class="price">
+                                    <p>{{ product.price }}P</p>
+                                    <div class="counter">
+                                        <button class="minus" type="button" onclick="changeQuantity('item{{ product.id }}', -1)">-</button>
+                                        <input class="count" type="text" id="item{{ product.id }}" name="{{ product.name }}" value="0" min="0">
+                                        <button class="plus" type="button" onclick="changeQuantity('item{{ product.id }}', 1)">+</button>
+                                    </div>           
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+        {% endfor %}
+        <input type="hidden" name="category_id" value="{{ category_id }}">
+        <footer class="footer">
+            <div class="footer-content">
+                <button class="confirm-button" type="submit">Добавить в заказ</button>
+            </div>
+        </footer>
+    </form>
+    </form>
     <script>
         document.getElementById('order-form').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -116,15 +121,6 @@
                 console.error('Error:', error);
             });
         });
-
-        //Меню навигации
-        function openNav() {
-            document.getElementById("sidebar").style.width = "250px";
-        }
-
-        function closeNav() {
-            document.getElementById("sidebar").style.width = "0";
-        }
 
         //Изменение кол-ва продуктов в поле 
         function changeQuantity(itemId, change) {

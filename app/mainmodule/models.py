@@ -25,13 +25,13 @@ def get_categories():
 def get_products(category_id):
     g.cursor.execute(
         """
-        SELECT products.product_id, products.name, ingredients.name, products.price, categories.name
+        SELECT products.product_id, products.name, ingredients.name, products.price, categories.name, volume
         FROM products
         LEFT JOIN recipes ON products.product_id = recipes.product_id
         LEFT JOIN ingredients ON recipes.ingredient_id = ingredients.ingredient_id
         JOIN categories ON products.category = categories.category_id
         LEFT JOIN categories AS parent_categories ON categories.subcategory = parent_categories.subcategory
-        WHERE (categories.category_id = %s OR categories.subcategory = %s)
+        WHERE (categories.category_id = %s OR categories.subcategory = %s) AND products.available = True
         ORDER BY products.name;
 
         """,
@@ -39,7 +39,7 @@ def get_products(category_id):
     )
     rows = g.cursor.fetchall()
     cocktails_per_subcategory = {}
-    for cocktail_id, cocktail_name, ingredient_name, price, subcategory in rows:
+    for cocktail_id, cocktail_name, ingredient_name, price, subcategory, volume in rows:
         if subcategory not in cocktails_per_subcategory:
                 cocktails_per_subcategory[subcategory] = []
 
@@ -48,7 +48,7 @@ def get_products(category_id):
 
         # Если продукта нет, то добавляем
         if not product:
-            product = {'id': cocktail_id, 'name': cocktail_name, 'ingredients': [], 'price': str(price)}
+            product = {'id': cocktail_id, 'name': cocktail_name, 'ingredients': [], 'price': str(price), 'volume': volume}
             cocktails_per_subcategory[subcategory].append(product)
 
         # В любом случае через ссылку, указывающую на нужный продукт добавляем новый ингредиент
