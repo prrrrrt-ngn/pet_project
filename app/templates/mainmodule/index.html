@@ -84,13 +84,15 @@
             const formData = new FormData(this);
             const categoryId = formData.get('category_id');
             const products = [];
+            const price = formData.get('product.price');
 
             // Перебираем все продукты и собираем их id и количество
             formData.forEach((quantity, productName) => {
                 if (productName !== 'category_id' && quantity > 0) {
                     products.push({
                         id: productName, // Используем название как id (можно заменить на реальные ids)
-                        quantity: parseInt(quantity)
+                        quantity: parseInt(quantity),
+                        price: parseInt(price)
                     });
                 }
             });

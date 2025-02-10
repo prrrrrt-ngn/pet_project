@@ -77,15 +77,22 @@ def order():
         try:
             data = request.get_json()
             product_to_remove = data.get('product')
-
             if product_to_remove and 'order' in session:
+                removedFlag = False
+                new_order = []
                 for item in session['order']:
                     if product_to_remove in item:
                         del item[product_to_remove]
-                        session.modified = True
-                        break
-            return jsonify({"message": "Телочку на веранде оу ес"}), 200
-
+                        removedFlag = True
+                    if item:
+                        new_order.append(item)
+                if removedFlag == False:
+                    return jsonify({"message": 'Такой позиции нет в заказе'}), 200
+                session['order'] = new_order
+                session.modified = True
+                print(session['order'])
+                return jsonify({"message": 'Успешно удалена позиция!'}), 200
+            
         except Exception as e:
             return jsonify({"error": f"An error occurred: {str(e)}"}), 500
     if 'order' not in session:
