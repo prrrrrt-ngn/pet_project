@@ -41,7 +41,7 @@ def add_to_order():
         data = request.get_json()
         category_id = data.get("category_id")
         products = data.get("products", [])
-
+        print(data)
         if not category_id or not products:
             return jsonify({"error": "Category ID or products are missing"}), 400
         
@@ -53,16 +53,17 @@ def add_to_order():
         for product in products:
             product_name = product.get("id")
             quantity = product.get("quantity")
+            price = product.get("price")
 
             if product_name not in valid_products or quantity <= 0:
                 continue
 
             for item in session['order']:
                 if product_name in item:
-                    item[product_name] += quantity
+                    item[product_name][0] += quantity
                     break
             else:
-                session['order'].append({product_name: quantity})
+                session['order'].append({product_name: [quantity, price]})
         session.modified = True
 
         return jsonify({"message": "Order successfully update"}), 200
@@ -97,13 +98,20 @@ def order():
             return jsonify({"error": f"An error occurred: {str(e)}"}), 500
     if 'order' not in session:
         session['order'] = []
-    return order_view(session['order'])
+
+    total_price = 0
+    for item in session['order']:
+        for product, details in item.items():
+            total_price += details[0] * details[1]
+
+    return order_view(session['order'], total_price)
 
 
 @main_module.route('/confirm_order', methods=["POST"])
 def confirm_order():
     try:
         data = request.get_json()
+        print(data)
         if not data.get('order'):
             return jsonify({"error": "Заказ пуст"}), 400
         ready_order = data.get('order')

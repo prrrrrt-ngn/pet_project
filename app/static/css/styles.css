@@ -27,12 +27,14 @@
     background: white;
     padding: 1rem;
     border-top: 1px solid #eee;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
     backdrop-filter: blur(8px);
   }
 
   .footer-content {
       max-width: 1280px;
       margin: 0 auto;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
 
   }
 
@@ -46,6 +48,8 @@
       font-weight: 500;
       cursor: pointer;
       transition: background-color 0.2s;
+      font-size: 16px;
+        font-weight: bold;
       color: inherit;
   }
 
@@ -101,6 +105,100 @@
   border: none;
   background: transparent;
   font-weight: bold;
+}
+
+
+.cart-container {
+  padding: 15px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+#order-list {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+#order-list li {
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.product-info {
+  flex-grow: 1;
+  font-size: 16px;
+}
+
+.product-name {
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.product-details {
+  display: flex;
+  justify-content: space-between;
+  color: #666;
+  font-size: 14px;
+}
+
+.remove-btn {
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin-left: 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.remove-btn:hover {
+  background: #ff5252;
+}
+
+.total-price {
+  text-align: right;
+  font-size: 18px;
+  font-weight: bold;
+  margin: 20px 0;
+  padding: 15px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+.header {
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.25);
+  padding: 10px;
+  margin: 5px;
+  display: flex;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 20px;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.back-btn {
+  color: #333;
+  display: flex;
+  align-items: center;
 }
 
   

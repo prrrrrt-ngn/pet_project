@@ -3,76 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link type="text/css" href="{{ url_for('static', filename='css/styles.css')}}" rel="stylesheet">
     <title>Заказ</title>
 </head>
 <body>
-    <h1>Ваш заказ</h1>
+    <div class="header">
+        <a href="{{url_for('mainmodule.main')}}" class="back-btn">
+            <i class='bx bx-arrow-back bx-md'></i>
+        </a>
+        <h1>Ваш заказ</h1>
+        <div style="width: 40px;"></div> <!-- Для выравнивания -->
+    </div>
+    
+    <div class="cart-container">
         <ul id="order-list">
             {% for item in order %}
-                {% for product, quantity in item.items() %}
+                {% for product, details in item.items() %}
+                    {% set current_price = details[0] * details[1] %}
                     <li data-product="{{ product }}">
-                        {{product}} : {{ quantity }}
-                        <button onclick="removeProduct('{{ product }}')">Удалить</button>
+                        <div class="product-info">
+                            <div class="product-name">{{ product }}</div>
+                            <div class="product-details">
+                                <span>{{ details[0] }} × {{ details[1] }}P</span>
+                                <span>{{ current_price }}P</span>
+                            </div>
+                        </div>
+                        <button class="remove-btn" onclick="removeProduct('{{ product }}')">
+                            <i class='bx bx-trash'></i>
+                        </button>
                     </li>
                 {% endfor %}
             {% endfor %}
         </ul>
-        <button onclick="confirmOrder()">Подтвердить заказ</button>
+        
+        <div class="total-price">
+            Итого: {{ total_price }}P
+        </div>
+        <footer class="footer">
+            <div class="footer-content">
+                <button class="confirm-button" onclick="confirmOrder()">
+                    Подтвердить заказ
+                </button>
+            </div>
+        </footer>
+    </div>
 
-
-        <script>
-            async function removeProduct(product) {
-                const response = await fetch('/order', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ product }),
-                });
-    
-                if (response.ok) {
-                    location.reload();
-                } else {
-                    console.error('Не удалось удалить позицию');
-                }
-            }
-    
-            async function confirmOrder() {
-            // Получаем все элементы корзины из DOM
-            const orderList = document.querySelectorAll('#order-list li');
-            const order = [];
-
-            orderList.forEach(item => {
-                const product = item.getAttribute('data-product');
-                const quantityText = item.textContent.split(':')[1]?.trim(); // Извлекаем количество
-                const quantity = parseInt(quantityText, 10);
-
-                if (product && quantity > 0) {
-                    order.push({ product, quantity });
-                }
-            });
-
-            // Отправляем запрос с корзиной на сервер
-            const response = await fetch('/confirm_order', {
+    <script>
+        async function removeProduct(product) {
+            const response = await fetch('/order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ order }), // Передаем заказ в теле запроса
+                body: JSON.stringify({ product }),
             });
 
             if (response.ok) {
-                alert('Ваш заказ отправлен на бар!');
-                window.location.href = '/products/category/1';
-            } 
-            else {
-                const errorData = await response.json();
-                if (errorData.error === 'Заказ пуст') {
-                    alert(errorData.error);
+                location.reload();
+            } else {
+                console.error('Не удалось удалить позицию');
+            }
+        }
+
+        async function confirmOrder() {
+            try {
+                const orderList = document.querySelectorAll('#order-list li');
+                const order = [];
+
+                orderList.forEach(item => {
+                    const product = item.getAttribute('data-product');
+                    const detailsText = item.querySelector('.product-details').textContent;
+                    const [quantityText, priceText] = detailsText.split('×').map(s => s.trim());
+                    
+                    const quantity = parseInt(quantityText) || 1;
+                    const price = parseFloat(priceText.replace('P', '').trim()) || 0;
+
+                    if (product && quantity > 0) {
+                        order.push({
+                            product: product,
+                            quantity: quantity,
+                            price: price
+                        });
+                    }
+                });
+
+                console.log("Формируемый заказ:", order);
+
+                if (order.length === 0) {
+                    throw new Error("Корзина пуста");
                 }
-                console.error('Failed to confirm order');
+
+                const response = await fetch('/confirm_order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order: order, total: "{{ total_price }}" }),
+                });
+
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || "Ошибка сервера");
+                }
+
+                alert(result.success || "Заказ успешно отправлен!");
+                window.location.href = '/products/category/1';
+                
+            } catch (err) {
+                console.error("Ошибка:", err);
+                alert("Ошибка: " + err.message);
             }
-            }
-        </script>
+        }
+    </script>
 </body>
 </html>
